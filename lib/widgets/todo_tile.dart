@@ -3,6 +3,8 @@ import 'package:todoapp/constants/colors.dart';
 import 'package:todoapp/models/todo.dart';
 
 class ToDoTile extends StatelessWidget {
+  //final is used with the defined parameters so that it can be used in other classes as well 
+  
   final ToDo todo;
   final onToDoChange;
   final onDelete;

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -16,6 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final todolist = ToDo.todoList();
+  final _todoController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -74,30 +77,39 @@ class _HomePageState extends State<HomePage> {
                       ],
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    child: const TextField(
-                      decoration: InputDecoration(
+                    child: TextField(
+                      controller: _todoController,
+                      decoration: const InputDecoration(
                           hintText: 'Add a new task', border: InputBorder.none),
                     ),
                   ),
                 ),
-              GestureDetector(
-                onTap: () {
-                  
-                },
-                child: Container(
+                GestureDetector(
+                  onTap: () {
+                    if (_todoController.text != '') {
+                    _addToDoItem(_todoController.text);
+                    }
+                    else{
+
+                    }
+                    _todoController.clear();
+                  },
+                  child: Container(
                     margin: const EdgeInsets.only(right: 16, bottom: 16),
-                    decoration: const BoxDecoration(
-                        color: tdBlue,
-                        borderRadius: BorderRadius.all(Radius.circular(12))),
                     height: 60,
                     width: 60,
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                        color: tdBlue),
                     child: const Icon(
                       Icons.add,
-                      size: 26,
                       color: Colors.white,
+                      size: 25,
                     ),
                   ),
-              )
+                ),
               ],
             ),
           )
@@ -116,6 +128,15 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       todolist.removeWhere((item) => item.id == id);
     });
+  }
+
+  void _addToDoItem(String todo) {
+    setState(() {
+      todolist.add(ToDo(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          todoText: todo));
+    });
+    _todoController.clear();
   }
 
   AppBar _buildAppBar() {
