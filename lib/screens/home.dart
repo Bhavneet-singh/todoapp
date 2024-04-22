@@ -6,7 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:todoapp/constants/colors.dart';
 import 'package:todoapp/models/todo.dart';
-import 'package:todoapp/widgets/search_box.dart';
+
 import 'package:todoapp/widgets/todo_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,6 +19,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final todolist = ToDo.todoList();
   final _todoController = TextEditingController();
+  List<ToDo> _foundToDo = [];
+
+  @override
+  //this will have the
+  void initState() {
+    // TODO: implement initState
+    _foundToDo = todolist;
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,35 +37,7 @@ class _HomePageState extends State<HomePage> {
       appBar: _buildAppBar(),
       body: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Column(
-              children: [
-                const SearchBox(),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 30),
-                        child: const Text(
-                          'All ToDos',
-                          style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      for (ToDo todo in todolist)
-                        ToDoTile(
-                          todo: todo,
-                          onToDoChange: _handleToDoChange,
-                          onDelete: _handleDeletion,
-                        )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _searchBox(),
           Align(
             alignment: Alignment.bottomCenter,
             child: Row(
@@ -87,11 +69,8 @@ class _HomePageState extends State<HomePage> {
                 GestureDetector(
                   onTap: () {
                     if (_todoController.text != '') {
-                    _addToDoItem(_todoController.text);
-                    }
-                    else{
-
-                    }
+                      _addToDoItem(_todoController.text);
+                    } else {}
                     _todoController.clear();
                   },
                   child: Container(
@@ -118,6 +97,60 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Container _searchBox() {
+    return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20)),
+                child:  TextField(
+                  onChanged: (value) => _searchFunctionality(value),
+                  decoration:const InputDecoration(
+                      contentPadding: EdgeInsets.all(0),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: tdBlack,
+                        size: 20,
+                      ),
+                      prefixIconConstraints: BoxConstraints(
+                        maxHeight: 20,
+                        minWidth: 25,
+                      ),
+                      border: InputBorder.none,
+                      hintText: 'Search',
+                      hintStyle: TextStyle(color: tdGrey)),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 30),
+                      child: const Text(
+                        'All ToDos',
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    for (ToDo todo in _foundToDo)
+                      ToDoTile(
+                        todo: todo,
+                        onToDoChange: _handleToDoChange,
+                        onDelete: _handleDeletion,
+                      )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+  }
+
   void _handleToDoChange(ToDo todo) {
     setState(() {
       todo.isDone = !todo.isDone;
@@ -137,6 +170,22 @@ class _HomePageState extends State<HomePage> {
           todoText: todo));
     });
     _todoController.clear();
+  }
+
+  void _searchFunctionality(String enteredKeyword) {
+    List<ToDo> result = [];
+    if (enteredKeyword.isEmpty) {
+      result = todolist;
+    } else {
+      result = todolist
+          .where((element) => element.todoText
+              .toLowerCase()
+              .contains(enteredKeyword.toLowerCase()))
+          .toList();
+    }
+    setState(() {
+      _foundToDo = result;
+    });
   }
 
   AppBar _buildAppBar() {
